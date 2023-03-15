@@ -132,26 +132,68 @@ parse_elf_header(){
     printf("Elf Header\n\n");
 
     // Magic number
-    printf("%6s %12s %6s %20s %6s %12s\n", "Offset", "Name", "Value", "Meaning", "Size", "Type");
-    printf("%#06zx %12s %#6x %20s %6zu %12s\n", offset, "EI_MAG0", e->e_ident[0], "Magic Number 0", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[0]);
-    printf("%#06zx %12s %6c %20s %6zu %12s\n", offset, "EI_MAG1", e->e_ident[1], "Magic Number 1", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[1]);
-    printf("%#06zx %12s %6c %20s %6zu %12s\n", offset, "EI_MAG2", e->e_ident[2], "Magic Number 2", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[2]);
-    printf("%#06zx %12s %6c %20s %6zu %12s\n", offset, "EI_MAG3", e->e_ident[3], "Magic Number 3", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[3]);
+    printf("%6s %12s %6s %35s %6s %12s\n", "Offset", "Name", "Value", "Meaning", "Size", "Type");
+    printf("%#06zx %12s %#6x %35s %6zu %12s\n", offset, "EI_MAG0", e->e_ident[0], "Magic Number 0", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[0]);
+    printf("%#06zx %12s %6c %35s %6zu %12s\n", offset, "EI_MAG1", e->e_ident[1], "Magic Number 1", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[1]);
+    printf("%#06zx %12s %6c %35s %6zu %12s\n", offset, "EI_MAG2", e->e_ident[2], "Magic Number 2", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[2]);
+    printf("%#06zx %12s %6c %35s %6zu %12s\n", offset, "EI_MAG3", e->e_ident[3], "Magic Number 3", sizeof(uint8_t), "uint8_t"); offset += sizeof(e->e_ident[3]);
 
     // Class
-    printf("%#06zx %12s %6u %20s %6zu %12s\n",
+    printf("%#06zx %12s %6u %35s %6zu %12s\n",
             offset,
             "Class",
             e->e_ident[4],
-            e->e_ident[4] == ELFCLASSNONE ? "Class" :
+            e->e_ident[4] == ELFCLASSNONE ? "No class" :
             e->e_ident[4] == ELFCLASS32   ? "32-bit architecture" :
             e->e_ident[4] == ELFCLASS64   ? "64-bit architecture" :
             "Invalid class",
             sizeof(uint8_t),
             "uint8_t");
-    offset += sizeof(e->e_ident[3]);
+    offset += sizeof(e->e_ident[4]);
+
+    printf("%#06zx %12s %6u %35s %6zu %12s\n",
+            offset,
+            "Data",
+            e->e_ident[5],
+            e->e_ident[5] == ELFDATANONE ? "Unknown data format" :
+            e->e_ident[5] == ELFDATA2LSB ? "Two's complement, little-endian" :
+            e->e_ident[5] == ELFDATA2MSB ? "Two's complement, big endian" :
+            "Invalid data",
+            sizeof(uint8_t),
+            "uint8_t");
+    offset += sizeof(e->e_ident[5]);
+
+    printf("%#06zx %12s %6u %35s %6zu %12s\n",
+            offset,
+            "Version",
+            e->e_ident[6],
+            e->e_ident[6] == EV_NONE ? "Invalid version" :
+            e->e_ident[6] == EV_CURRENT ? "Current version" :
+            "Invalid version",
+            sizeof(uint8_t),
+            "uint8_t");
+    offset += sizeof(e->e_ident[6]);
 
 
+    printf("%#06zx %12s %6u %35s %6zu %12s\n",
+            offset,
+            "OS ABI",
+            e->e_ident[7],
+            e->e_ident[7] == ELFOSABI_NONE ? "SYSV" :
+            e->e_ident[7] == ELFOSABI_SYSV ? "SYSV" :
+            e->e_ident[7] == ELFOSABI_HPUX ? "HPUX" :
+            e->e_ident[7] == ELFOSABI_NETBSD ? "NETBSD" :
+            e->e_ident[7] == ELFOSABI_LINUX ? "Linux" :
+            e->e_ident[7] == ELFOSABI_SOLARIS ? "Solaris" :
+            e->e_ident[7] == ELFOSABI_IRIX ? "Irix" :
+            e->e_ident[7] == ELFOSABI_FREEBSD ? "FreeBSD" :
+            e->e_ident[7] == ELFOSABI_TRU64 ? "Tru64" :
+            e->e_ident[7] == ELFOSABI_ARM ? "Arm" :
+            e->e_ident[7] == ELFOSABI_STANDALONE ? "Standalone" :
+            "Invalid ABI",
+            sizeof(uint8_t),
+            "uint8_t");
+    offset += sizeof(e->e_ident[7]);
 
 }
 
