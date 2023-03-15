@@ -1,0 +1,5 @@
+*.tmux
+.*.swp
+hw
+parse_elf
+
