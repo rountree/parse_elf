@@ -293,7 +293,7 @@ parse_elf_header(){
             sizeof(uint64_t),
             "uint64_t");
 
-    // Program header offset
+    // Section header offset
     printf("%#06zx %24s %#18"PRIx64" %35s %6zu %12s\n",
             0x0028UL,
             "Section header offset",
@@ -312,52 +312,52 @@ parse_elf_header(){
             "uint32_t");
 
     // Elf header size
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x0034UL,
             "ELF header size",
             e->e_ehsize,
-            "Size of this header",
+            "Size of this ELF header",
             sizeof(uint16_t),
             "uint16_t");
 
     // Size of single program header entry
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x0036UL,
             "Program hdr entry size",
             e->e_phentsize,
-            "Size of single entry",
+            "Size of single program header entry",
             sizeof(uint16_t),
             "uint16_t");
 
     // Number of program header entries
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x0038UL,
             "Program hdr entry count",
             e->e_phnum,
-            "Number of entries",
+            "Number of program header entries",
             sizeof(uint16_t),
             "uint16_t");
 
     // Size of single section header entry
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x003aUL,
             "Section hdr entry size",
             e->e_shentsize,
-            "Size of single entry",
+            "Size of single section header entry",
             sizeof(uint16_t),
             "uint16_t");
 
     // Number of section header entries
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x003cUL,
             "Section hdr entry count",
             e->e_shnum,
-            "Number of entries",
+            "Number of section header entries",
             sizeof(uint16_t),
             "uint16_t");
 
     // Section header index for the string table.
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
             0x003eUL,
             "Section hdr str idx",
             e->e_shnum,
@@ -366,6 +366,50 @@ parse_elf_header(){
             "String table section haeder index",
             sizeof(uint16_t),
             "uint16_t");
+
+    printf("\n\n");
+}
+
+void
+parse_program_headers(){
+    Elf64_Ehdr *e = (Elf64_Ehdr *)map_addr;
+    Elf64_Phdr *ph = (Elf64_Phdr*)(map_addr+(e->e_phoff));
+
+    printf("Program headers\n");
+    printf("\tStart = %#"PRIx64", Count = %#"PRIx16", Size (each)=%#"PRIx16"\n\n",
+            e->e_phoff, e->e_phnum, e->e_phentsize);
+
+    // Program header index
+    printf("%6s %19s %5s %15s %15s %15s %15s %15s %15s\n",
+            "index","type","perms","offset", "vaddr", "paddr", "filesz", "memsz", "align");
+    printf("%6s %19s %5s %15s %15s %15s %15s %15s %15s\n",
+        "======","==================","=====","===============","===============","===============","===============","===============","===============");
+    for(uint16_t i=0; i<e->e_phnum; i++, ph++){
+
+        //     index        type perms       offset       vaddr        paddr        filesz       memsz        align
+        printf("%#6"PRIx16" %19s %3c%1c%1c %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64"\n",
+                i,                                                      // index
+                ph->p_type == PT_NULL ? "NULL" :                        // type
+                ph->p_type == PT_LOAD ? "LOAD" :
+                ph->p_type == PT_DYNAMIC ? "DYNAMIC" :
+                ph->p_type == PT_INTERP ? "INTERP" :
+                ph->p_type == PT_NOTE ? "NOTE" :
+                ph->p_type == PT_SHLIB ? "SHLIB" :
+                ph->p_type == PT_PHDR ? "PHDR" :
+                ph->p_type >= PT_LOPROC && ph->p_type <= PT_HIPROC ? "Processor-specific" :
+                ph->p_type == PT_GNU_STACK ? "GNU_STACK" :
+                "Invalid type",
+                (ph->p_flags & PF_R) ? 'r' : ' ',                         // flags
+                (ph->p_flags & PF_W) ? 'w' : ' ',
+                (ph->p_flags & PF_X) ? 'x' : ' ',
+                ph->p_offset,                                           // offset
+                ph->p_vaddr,                                            // vaddr
+                ph->p_paddr,                                            // paddr
+                ph->p_filesz,                                           // filesz
+                ph->p_memsz,                                            // memsz
+                ph->p_align                                             // align
+                );
+    }
 }
 
 int
@@ -373,6 +417,7 @@ main( [[maybe_unused]] int argc, [[maybe_unused]] char **argv ){
     parse_options( argc, argv );
     map_file();
     parse_elf_header();
+    parse_program_headers();
     cleanup();
     return 0;
 }
