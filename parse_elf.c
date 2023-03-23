@@ -31,7 +31,7 @@
 static char *pathname;                  // Name of the file to be parsed
 static unsigned char const *map_addr;   // Location of the memory map of the file
 
-[[noreturn]] void
+void
 print_help(){
     printf("Usage:  parse_elf [-h|-v]\n");
     printf("        parse_elf <file>\n");
@@ -43,7 +43,7 @@ print_help(){
     exit(0);
 }
 
-[[noreturn]] void
+void
 print_version(){
     printf("parse_elf v0.01\n");
     exit(0);
