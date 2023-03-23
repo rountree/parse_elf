@@ -30,6 +30,8 @@
 
 static char *pathname;                  // Name of the file to be parsed
 static unsigned char const *map_addr;   // Location of the memory map of the file
+#define ERR_BUF_SZ (1023)
+char err_buf[ERR_BUF_SZ+1];
 
 void
 print_help(){
@@ -127,6 +129,9 @@ map_file(){
             &&  'F' == map_addr[3]);
 }
 
+
+
+
 void
 parse_elf_header(){
     Elf64_Ehdr *e = (Elf64_Ehdr *)map_addr;
@@ -141,6 +146,7 @@ parse_elf_header(){
     printf("%#06zx %24s %18c %35s %6zu %12s\n",  0x0003UL, "Magic 3", e->e_ident[3], "Magic Number 3", sizeof(uint8_t), "uint8_t");
 
     // Class
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[4]);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0004UL,
             "Class",
@@ -148,11 +154,12 @@ parse_elf_header(){
             e->e_ident[4] == ELFCLASSNONE ? "No class" :
             e->e_ident[4] == ELFCLASS32   ? "32-bit architecture" :
             e->e_ident[4] == ELFCLASS64   ? "64-bit architecture" :
-            "Invalid class",
+            err_buf,
             sizeof(uint8_t),
             "uint8_t");
 
     // Endianess
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[5]);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0005UL,
             "Data",
@@ -160,22 +167,24 @@ parse_elf_header(){
             e->e_ident[5] == ELFDATANONE ? "Unknown data format" :
             e->e_ident[5] == ELFDATA2LSB ? "Two's complement, little-endian" :
             e->e_ident[5] == ELFDATA2MSB ? "Two's complement, big endian" :
-            "Invalid data",
+            err_buf,
             sizeof(uint8_t),
             "uint8_t");
 
     // Version
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[6]);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0006UL,
             "Version",
             e->e_ident[6],
             e->e_ident[6] == EV_NONE ? "Invalid version" :
             e->e_ident[6] == EV_CURRENT ? "Current version" :
-            "Invalid version",
+            err_buf,
             sizeof(uint8_t),
             "uint8_t");
 
     // ABI
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[7]);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0007UL,
             "OS ABI",
@@ -191,17 +200,18 @@ parse_elf_header(){
             e->e_ident[7] == ELFOSABI_TRU64 ? "Tru64" :
             e->e_ident[7] == ELFOSABI_ARM ? "Arm" :
             e->e_ident[7] == ELFOSABI_STANDALONE ? "Standalone" :
-            "Invalid ABI",
+            err_buf,
             sizeof(uint8_t),
             "uint8_t");
 
     // ABI version
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[8]);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0008UL,
             "ABI Version",
             e->e_ident[8],
             e->e_ident[8] == 0 ? "Valid ABI version" :
-            "Invalid ABI version",
+            err_buf,
             sizeof(uint8_t),
             "uint8_t");
 
@@ -222,6 +232,7 @@ parse_elf_header(){
 
 
     // Object file type
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu16")\n", e->e_type);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0010UL,
             "File type",
@@ -231,11 +242,12 @@ parse_elf_header(){
             e->e_type == ET_EXEC ? "An executable file" :
             e->e_type == ET_DYN  ? "An shared object" :
             e->e_type == ET_CORE ? "A core file" :
-            "Invalid file type",
+            err_buf,
             sizeof(uint16_t),
             "uint16_t");
 
     // Machine type
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu16")\n", e->e_machine);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0012UL,
             "Machine type",
@@ -260,18 +272,19 @@ parse_elf_header(){
             e->e_machine == EM_IA_64 ? "Intel Itanium" :
             e->e_machine == EM_X86_64 ? "AMD x86-64" :
             e->e_machine == EM_VAX ? "DEC Vax" :
-            "Invalid machine type",
+            err_buf,
             sizeof(uint16_t),
             "uint16_t");
 
     // File version (?)
+    snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu32")\n", e->e_version);
     printf("%#06zx %24s %18u %35s %6zu %12s\n",
             0x0014UL,
             "File version",
             e->e_version,
             e->e_version == EV_NONE ? "Invalid version" :
             e->e_version == EV_CURRENT ? "Current version" :
-            "Really invalid version",
+            err_buf,
             sizeof(uint32_t),
             "uint32_t");
 
@@ -387,6 +400,7 @@ parse_program_headers(){
     for(uint16_t i=0; i<e->e_phnum; i++, ph++){
 
         //     index        type perms       offset       vaddr        paddr        filesz       memsz        align
+    	snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%#"PRIx32")\n", ph->p_type);
         printf("%#6"PRIx16" %19s %3c%1c%1c %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64"\n",
                 i,                                                      // index
                 ph->p_type == PT_NULL ? "NULL" :                        // type
@@ -396,9 +410,12 @@ parse_program_headers(){
                 ph->p_type == PT_NOTE ? "NOTE" :
                 ph->p_type == PT_SHLIB ? "SHLIB" :
                 ph->p_type == PT_PHDR ? "PHDR" :
+		// See /usr/include/elf.h for details
                 ph->p_type >= PT_LOPROC && ph->p_type <= PT_HIPROC ? "Processor-specific" :
+		ph->p_type == PT_GNU_EH_FRAME ? "GNU_EH_FRAME" :
                 ph->p_type == PT_GNU_STACK ? "GNU_STACK" :
-                "Invalid type",
+                ph->p_type == PT_GNU_RELRO ? "GNU_RELRO" :
+                err_buf,
                 (ph->p_flags & PF_R) ? 'r' : ' ',                         // flags
                 (ph->p_flags & PF_W) ? 'w' : ' ',
                 (ph->p_flags & PF_X) ? 'x' : ' ',
