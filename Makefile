@@ -1,9 +1,11 @@
-all:
-	clang -std=c2x -O3 -Wall -Wextra -Werror -o parse_elf parse_elf.c
+all: parse_elf 0
 
-hw: hw.c
-	gcc -o hw hw.c
+parse_elf: parse_elf.c Makefile
+	clang-13 -std=c2x -O3 -Wall -Wextra -Werror -o parse_elf parse_elf.c
 
-hw2: hw2.c
-	gcc -Wall -Wextra -nostartfiles -nodefaultlibs -nostdlib -o hw2 hw2.c
+0: 0.c Makefile
+	clang-13 -S 0.c
+	clang-13 -g -s -static -nostartfiles -nodefaultlibs -nolibc -nostdlib -Os -o 0 0.s
+
+
 

@@ -2,4 +2,6 @@
 .*.swp
 hw
 parse_elf
+0.s
+0
 
