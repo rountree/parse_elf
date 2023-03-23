@@ -26,6 +26,7 @@
 #include <sys/mman.h>   // mmap(2)
 #include <stdint.h>     // uint64_t and friends
 #include <inttypes.h>   // PRIu64 and friends
+#include <stdbool.h>    // bool, true, false
 #include <elf.h>
 
 static char *pathname;                  // Name of the file to be parsed
@@ -433,11 +434,32 @@ parse_program_headers(){
 void
 parse_section_headers(){
     Elf64_Ehdr *e = (Elf64_Ehdr *)map_addr;
-//    Elf64_Phdr *sh = (Elf64_Phdr*)(map_addr+(e->e_shoff));
+    Elf64_Shdr *sh = (Elf64_Shdr*)(map_addr+(e->e_shoff));
 
     printf("Section headers\n");
     printf("\tStart = %#"PRIx64", Count = %#"PRIx16", Size (each)=%#"PRIx16"\n\n",
             e->e_shoff, e->e_shnum, e->e_shentsize);
+    printf("%6s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n",
+            "offset", "name", "type", "flags", "saddr", "soffset", "size", "link", "info", "addralign", "entsize");
+    printf("%6s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n",
+            "======", "============", "============", "============", "============", "============", "============", "============", "============", "============", "============");
+    for(uint16_t i=0; i<e->e_shnum; i++, sh++){
+        //     offset        name         type         flags         addr      soffset        ssize      sh_link      sh_info   addr_align      entsize
+        printf("%#06lx %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64"\n",
+                e->e_shoff + ( i * e->e_shentsize ),    // offset
+                sh->sh_name,                            // name
+                sh->sh_type,                            // type
+                sh->sh_flags,                           // flags
+                sh->sh_addr,                            // addr
+                sh->sh_offset,                          // soffset
+                sh->sh_size,                            // ssize
+                sh->sh_link,                            // link
+                sh->sh_info,                            // info
+                sh->sh_addralign,                       // addralign
+                sh->sh_entsize                          // entsize
+        );
+    }
+    printf("\n\n");
 
 }
 
