@@ -439,17 +439,32 @@ parse_section_headers(){
     printf("Section headers\n");
     printf("\tStart = %#"PRIx64", Count = %#"PRIx16", Size (each)=%#"PRIx16"\n\n",
             e->e_shoff, e->e_shnum, e->e_shentsize);
-    printf("%6s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n",
+    printf("%6s %12s %12s %5s %12s %12s %12s %12s %12s %12s %12s\n",
             "offset", "name", "type", "flags", "saddr", "soffset", "size", "link", "info", "addralign", "entsize");
-    printf("%6s %12s %12s %12s %12s %12s %12s %12s %12s %12s %12s\n",
-            "======", "============", "============", "============", "============", "============", "============", "============", "============", "============", "============");
+    printf("%6s %12s %12s %5s %12s %12s %12s %12s %12s %12s %12s\n",
+            "======", "============", "============", "=====", "============", "============", "============", "============", "============", "============", "============");
     for(uint16_t i=0; i<e->e_shnum; i++, sh++){
-        //     offset        name         type         flags         addr      soffset        ssize      sh_link      sh_info   addr_align      entsize
-        printf("%#06lx %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64"\n",
+        snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%#12"PRIx32")", sh->sh_type);
+        //     offset        name   type    flags        addr      soffset        ssize      sh_link      sh_info   addr_align      entsize
+        printf("%#06lx %#12"PRIx32" %12s   %s%s%s %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64"\n",
                 e->e_shoff + ( i * e->e_shentsize ),    // offset
                 sh->sh_name,                            // name
-                sh->sh_type,                            // type
-                sh->sh_flags,                           // flags
+                sh->sh_type == SHT_NULL     ? "NULL"    :
+                sh->sh_type == SHT_PROGBITS ? "PROGBITS":
+                sh->sh_type == SHT_SYMTAB   ? "SYMTAB"  :
+                sh->sh_type == SHT_STRTAB   ? "STRTAB"  :
+                sh->sh_type == SHT_RELA     ? "RELA"    :
+                sh->sh_type == SHT_HASH     ? "HASH"    :
+                sh->sh_type == SHT_DYNAMIC  ? "DYNAMIC" :
+                sh->sh_type == SHT_NOTE     ? "NOTE"    :
+                sh->sh_type == SHT_NOBITS   ? "NOBITS"  :
+                sh->sh_type == SHT_REL      ? "REL"     :
+                sh->sh_type == SHT_SHLIB    ? "SHLIB"   :
+                sh->sh_type == SHT_DYNSYM   ? "DYNSYM"  :
+                err_buf,
+                sh->sh_flags & SHF_WRITE    ? "w" : " ",
+                sh->sh_flags & SHF_ALLOC    ? "a" : " ",
+                sh->sh_flags & SHF_EXECINSTR? "x" : " ",
                 sh->sh_addr,                            // addr
                 sh->sh_offset,                          // soffset
                 sh->sh_size,                            // ssize
