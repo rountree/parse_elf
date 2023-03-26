@@ -139,16 +139,16 @@ parse_elf_header(){
     printf("Elf Header\n\n");
 
     // Magic number
-    printf("%6s %24s %18s %35s %6s %12s\n", "Offset", "Name", "Value", "Meaning", "Size", "Type");
-    printf("%6s %24s %18s %35s %6s %12s\n", "======", "========================", "==================", "===================================", "======", "===========");
-    printf("%#06zx %24s %#18x %35s %6zu %12s\n", 0x0000UL, "Magic 0", e->e_ident[0], "Magic Number 0", sizeof(uint8_t), "uint8_t");
-    printf("%#06zx %24s %18c %35s %6zu %12s\n",  0x0001UL, "Magic 1", e->e_ident[1], "Magic Number 1", sizeof(uint8_t), "uint8_t");
-    printf("%#06zx %24s %18c %35s %6zu %12s\n",  0x0002UL, "Magic 2", e->e_ident[2], "Magic Number 2", sizeof(uint8_t), "uint8_t");
-    printf("%#06zx %24s %18c %35s %6zu %12s\n",  0x0003UL, "Magic 3", e->e_ident[3], "Magic Number 3", sizeof(uint8_t), "uint8_t");
+    printf("%6s %24s %18s %35s %12s %6s\n", "Offset", "Name", "Value", "Meaning", "Type", "Size");
+    printf("%6s %24s %18s %35s %12s %6s\n", "======", "========================", "==================", "===================================", "===========", "======");
+    printf("%#06zx %24s %#18x %35s %12s %6zu\n", 0x0000UL, "Magic 0", e->e_ident[0], "Magic Number 0", "uint8_t", sizeof(uint8_t));
+    printf("%#06zx %24s %18c %35s %12s %6zu\n",  0x0001UL, "Magic 1", e->e_ident[1], "Magic Number 1", "uint8_t", sizeof(uint8_t));
+    printf("%#06zx %24s %18c %35s %12s %6zu\n",  0x0002UL, "Magic 2", e->e_ident[2], "Magic Number 2", "uint8_t", sizeof(uint8_t));
+    printf("%#06zx %24s %18c %35s %12s %6zu\n",  0x0003UL, "Magic 3", e->e_ident[3], "Magic Number 3", "uint8_t", sizeof(uint8_t));
 
     // Class
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[4]);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0004UL,
             "Class",
             e->e_ident[4],
@@ -156,12 +156,12 @@ parse_elf_header(){
             e->e_ident[4] == ELFCLASS32   ? "32-bit architecture" :
             e->e_ident[4] == ELFCLASS64   ? "64-bit architecture" :
             err_buf,
-            sizeof(uint8_t),
-            "uint8_t");
+            "uint8_t",
+            sizeof(uint8_t));
 
     // Endianess
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[5]);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0005UL,
             "Data",
             e->e_ident[5],
@@ -169,24 +169,24 @@ parse_elf_header(){
             e->e_ident[5] == ELFDATA2LSB ? "Two's complement, little-endian" :
             e->e_ident[5] == ELFDATA2MSB ? "Two's complement, big endian" :
             err_buf,
-            sizeof(uint8_t),
-            "uint8_t");
+            "uint8_t",
+            sizeof(uint8_t));
 
     // Version
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[6]);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0006UL,
             "Version",
             e->e_ident[6],
             e->e_ident[6] == EV_NONE ? "Invalid version" :
             e->e_ident[6] == EV_CURRENT ? "Current version" :
             err_buf,
-            sizeof(uint8_t),
-            "uint8_t");
+            "uint8_t",
+            sizeof(uint8_t));
 
     // ABI
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[7]);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0007UL,
             "OS ABI",
             e->e_ident[7],
@@ -202,22 +202,22 @@ parse_elf_header(){
             e->e_ident[7] == ELFOSABI_ARM ? "Arm" :
             e->e_ident[7] == ELFOSABI_STANDALONE ? "Standalone" :
             err_buf,
-            sizeof(uint8_t),
-            "uint8_t");
+            "uint8_t",
+            sizeof(uint8_t));
 
     // ABI version
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu8")\n", e->e_ident[8]);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0008UL,
             "ABI Version",
             e->e_ident[8],
             e->e_ident[8] == 0 ? "Valid ABI version" :
             err_buf,
-            sizeof(uint8_t),
-            "uint8_t");
+            "uint8_t",
+            sizeof(uint8_t));
 
     // Padding
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0009UL,
             "ABI Version",
             (unsigned int)e->e_ident[9] +
@@ -228,13 +228,13 @@ parse_elf_header(){
             (unsigned int)e->e_ident[14] +
             (unsigned int)e->e_ident[15],
             "Sum of padding (expected 0)",
-            (size_t)7,
-            "n/a");
+            "n/a",
+            (size_t)7);
 
 
     // Object file type
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu16")\n", e->e_type);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0010UL,
             "File type",
             e->e_type,
@@ -244,12 +244,12 @@ parse_elf_header(){
             e->e_type == ET_DYN  ? "An shared object" :
             e->e_type == ET_CORE ? "A core file" :
             err_buf,
-            sizeof(uint16_t),
-            "uint16_t");
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Machine type
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu16")\n", e->e_machine);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0012UL,
             "Machine type",
             e->e_machine,
@@ -274,112 +274,112 @@ parse_elf_header(){
             e->e_machine == EM_X86_64 ? "AMD x86-64" :
             e->e_machine == EM_VAX ? "DEC Vax" :
             err_buf,
-            sizeof(uint16_t),
-            "uint16_t");
+            "uint16_t",
+            sizeof(uint16_t));
 
     // File version (?)
     snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%"PRIu32")\n", e->e_version);
-    printf("%#06zx %24s %18u %35s %6zu %12s\n",
+    printf("%#06zx %24s %18u %35s %12s %6zu\n",
             0x0014UL,
             "File version",
             e->e_version,
             e->e_version == EV_NONE ? "Invalid version" :
             e->e_version == EV_CURRENT ? "Current version" :
             err_buf,
-            sizeof(uint32_t),
-            "uint32_t");
+            "uint32_t",
+            sizeof(uint32_t));
 
     // Entry point
-    printf("%#06zx %24s %#18"PRIx64" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx64" %35s %12s %6zu\n",
             0x0018UL,
             "Execution entry point",
             e->e_entry,
-            "Virtual address",
-            sizeof(uint64_t),
-            "uint64_t");
+            "",
+            "uint64_t",
+            sizeof(uint64_t));
 
     // Program header offset
-    printf("%#06zx %24s %#18"PRIx64" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx64" %35s %12s %6zu\n",
             0x0020UL,
             "Program header offset",
             e->e_phoff,
-            "Program header table starts here",
-            sizeof(uint64_t),
-            "uint64_t");
+            "",
+            "uint64_t",
+            sizeof(uint64_t));
 
     // Section header offset
-    printf("%#06zx %24s %#18"PRIx64" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx64" %35s %12s %6zu\n",
             0x0028UL,
             "Section header offset",
             e->e_shoff,
-            "Section header table starts here",
-            sizeof(uint64_t),
-            "uint64_t");
+            "",
+            "uint64_t",
+            sizeof(uint64_t));
 
     // Flags
-    printf("%#06zx %24s %#18"PRIx32" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx32" %35s %12s %6zu\n",
             0x0030UL,
             "Processor-specific flags",
             e->e_flags,
             "None defined",
-            sizeof(uint32_t),
-            "uint32_t");
+            "uint32_t",
+            sizeof(uint32_t));
 
     // Elf header size
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x0034UL,
             "ELF header size",
             e->e_ehsize,
-            "Size of this ELF header",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Size of single program header entry
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x0036UL,
             "Program hdr entry size",
             e->e_phentsize,
-            "Size of single program header entry",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Number of program header entries
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x0038UL,
             "Program hdr entry count",
             e->e_phnum,
-            "Number of program header entries",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Size of single section header entry
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x003aUL,
             "Section hdr entry size",
             e->e_shentsize,
-            "Size of single section header entry",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Number of section header entries
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x003cUL,
             "Section hdr entry count",
             e->e_shnum,
-            "Number of section header entries",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     // Section header index for the string table.
-    printf("%#06zx %24s %#18"PRIx16" %35s %6zu %12s\n",
+    printf("%#06zx %24s %#18"PRIx16" %35s %12s %6zu\n",
             0x003eUL,
             "Section hdr str idx",
             e->e_shnum,
             e->e_shnum == SHN_UNDEF ? "No string table present" :
             e->e_shnum == SHN_XINDEX ? "Extended index used" :
-            "String table section haeder index",
-            sizeof(uint16_t),
-            "uint16_t");
+            "",
+            "uint16_t",
+            sizeof(uint16_t));
 
     printf("\n\n");
 }
