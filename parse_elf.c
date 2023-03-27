@@ -443,7 +443,7 @@ parse_section_headers(){
             "offset", "name", "type", "flags", "saddr", "soffset", "size", "link", "info", "addralign", "entsize");
     printf("%6s %12s %12s %5s %12s %12s %12s %12s %12s %12s %12s\n",
             "======", "============", "============", "=====", "============", "============", "============", "============", "============", "============", "============");
-    for(uint16_t i=0; i<e->e_shnum; i++, sh++){
+    for(uint16_t i=0; i < e->e_shnum; i++, sh++){
         snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%#12"PRIx32")", sh->sh_type);
         //     offset        name   type    flags        addr      soffset        ssize      sh_link      sh_info   addr_align      entsize
         printf("%#06lx %#12"PRIx32" %12s   %s%s%s %#12"PRIx64" %#12"PRIx64" %#12"PRIx64" %#12"PRIx32" %#12"PRIx32" %#12"PRIx64" %#12"PRIx64"\n",
@@ -478,6 +478,35 @@ parse_section_headers(){
 
 }
 
+void
+parse_string_tables(){
+    Elf64_Ehdr *e = (Elf64_Ehdr *)map_addr;
+    Elf64_Shdr *sh = (Elf64_Shdr*)(map_addr+(e->e_shoff));
+
+    printf("String tables\n\n");
+    for(uint16_t i=0; i<e->e_shnum; i++, sh++){
+        if( sh->sh_type == SHT_STRTAB ){
+            for(
+                    size_t str_offset = (size_t)(sh->sh_offset), newline=1;
+                    str_offset < (size_t)(sh->sh_offset + sh->sh_size);
+               ){
+                    if(newline){
+                        newline = !newline;
+                        printf("%#06zx:\t", str_offset);
+                    }
+                    if( map_addr[str_offset] == 0 ){
+                        newline = 1;
+                        printf("\n");
+                    }else{
+                        printf("%c", map_addr[str_offset]);
+                    }
+                    str_offset++;
+            }
+        }
+    }
+    printf("\n\n");
+}
+
 int
 main( [[maybe_unused]] int argc, [[maybe_unused]] char **argv ){
     parse_options( argc, argv );
@@ -485,6 +514,7 @@ main( [[maybe_unused]] int argc, [[maybe_unused]] char **argv ){
     parse_elf_header();
     parse_program_headers();
     parse_section_headers();
+    parse_string_tables();
     cleanup();
     return 0;
 }
