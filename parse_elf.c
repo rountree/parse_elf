@@ -394,14 +394,16 @@ parse_program_headers(){
             e->e_phoff, e->e_phnum, e->e_phentsize);
 
     // Program header index
-    printf("%6s %6s %19s %5s %15s %15s %15s %15s %15s %15s\n",
+    printf("%6s %6s %15s %8s %10s %10s %10s %10s %10s %10s\n",
             "offset", "index","type","perms","offset", "vaddr", "paddr", "filesz", "memsz", "align");
-    printf("%6s %6s %19s %5s %15s %15s %15s %15s %15s %15s\n",
-        "======","======","==================","=====","===============","===============","===============","===============","===============","===============");
+    printf("%6s %6s %15s %8s %10s %10s %10s %10s %10s %10s\n",
+            "", "","(uint32)","(uint32)","(uint64)", "(uint64)", "(uint64)", "(uint64)", "(uint64)", "(uint64)");
+    printf("%6s %6s %15s %8s %10s %10s %10s %10s %10s %10s\n",
+        "======", "======", "==============", "========", "==========", "==========", "==========", "==========", "==========", "==========");
     for(uint16_t i=0; i<e->e_phnum; i++, ph++){
         //     offset   index        type perms       offset       vaddr        paddr        filesz       memsz        align
     	snprintf(err_buf, ERR_BUF_SZ, "Invalid:(%#"PRIx32")\n", ph->p_type);
-        printf("%#06lx %#6"PRIx16" %19s %3c%1c%1c %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64" %#15"PRIx64"\n",
+        printf("%#06lx %#6"PRIx16" %15s %6c%1c%1c %#10"PRIx64" %#10"PRIx64" %#10"PRIx64" %#10"PRIx64" %#10"PRIx64" %#10"PRIx64"\n",
                 e->e_phoff + ( i * e->e_phentsize ),
                 i,                                                      // index
                 ph->p_type == PT_NULL ? "NULL" :                        // type
@@ -417,9 +419,9 @@ parse_program_headers(){
                 ph->p_type == PT_GNU_STACK ? "GNU_STACK" :
                 ph->p_type == PT_GNU_RELRO ? "GNU_RELRO" :
                 err_buf,
-                (ph->p_flags & PF_R) ? 'r' : ' ',                         // flags
-                (ph->p_flags & PF_W) ? 'w' : ' ',
-                (ph->p_flags & PF_X) ? 'x' : ' ',
+                (ph->p_flags & PF_R) ? 'r' : '-',                         // flags
+                (ph->p_flags & PF_W) ? 'w' : '-',
+                (ph->p_flags & PF_X) ? 'x' : '-',
                 ph->p_offset,                                           // offset
                 ph->p_vaddr,                                            // vaddr
                 ph->p_paddr,                                            // paddr
